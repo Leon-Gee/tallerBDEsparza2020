@@ -1,4 +1,5 @@
 USE Northwind
+GO
 SET LANGUAGE 'English'
 
 /*
@@ -73,7 +74,7 @@ WHERE DATENAME(MONTH, OrderDate) LIKE '[aeiou]%'
 	11) consulta con los nombre de producto que tengan solamente 3 vocales
 */
 SELECT ProductName FROM Products
-WHERE Len(replace(replace(replace(replace(ProductName,'a',''),'e',''),'o',''),'u','')) = (len(ProductName) - 3)
+WHERE LEN(REPLACE(REPLACE(REPLACE(REPLACE(ProductName,'a',''),'e',''),'o',''),'u','')) = (LEN(ProductName) - 3)
 
 /*
 	12) consulta con los fechas de las ordenes cuyo año sea multiplo de 3
@@ -90,7 +91,6 @@ WHERE DATENAME(WEEKDAY, OrderDate) = 'Saturday' OR
 	  DATENAME(WEEKDAY, OrderDate) = 'Sunday'	AND
 	  (EmployeeID = 1 OR EmployeeID = 2 OR EmployeeID = 5)
 
-	  --***REVISAR
 /*	
 	14) consulta con las ordenes que no tengan compañia de envio o que se hayan realizado en 
 		el mes de enero
@@ -112,7 +112,6 @@ SELECT TOP 10 * FROM Products WHERE SupplierID = 1 ORDER BY UnitPrice DESC
 */
 SELECT TOP 4 * FROM Employees ORDER BY HireDate ASC
  
-	--***Revisar
 /*
 	18) consulta con empleado con una antiguedad de 10, 20 o 30 años y con una edad mayor a 30, o con los 
 		empleados que vivan en un blvd y no tengan una region asignada
@@ -123,7 +122,6 @@ SELECT * FROM Employees WHERE ((DATEDIFF(YY, HireDate, GETDATE()) = 10 OR
 							    DATEDIFF(YY, BirthDate, GETDATE()) = 30) OR
 							   (Address LIKE '%Blvd%' AND Region IS NOT NULL)
 
-	--***Revisar
 /*
 	19) consulta con las ordenes el codigo postal de envio tenga solamente letras
 */
