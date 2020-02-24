@@ -42,4 +42,20 @@ go
  inner join vw_productos p on p.[Clave del producto] = od.ProductID;
 
  go
+ /*
+--SUPLEMENTARIAS
+VW_TERRITORIES            TERRITORIES,REGION
+VW_EMPLOYEETERRIOTRIES    VW_TERRITORIES, EMPLOYEES, EMPLOYEETERRITORIES
+*/
+ create view vw_territories as
+ select t.*,r.*
+ from territories t
+ inner join region r on r.regionid = t.regionid;
 
+ go
+ 
+ create vw_employeeterritories
+ select t.*, e.*
+ from vw_territories t
+ inner join EmployeeTerritories et on et.TerritoryID = t.TerritoryID
+ inner join employees e on e.EmployeeID = et.EmployeeID;
