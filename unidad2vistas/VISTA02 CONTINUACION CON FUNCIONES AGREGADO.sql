@@ -50,6 +50,7 @@ inner join Shippers s on s.ShipperID = o.ShipVia
 GO
 select * from vw_orders
 
+drop view vw_orderdetails;
 -- ORDER DETAILS VIEW
 create view vw_orderdetails as
 select 
@@ -100,3 +101,63 @@ inner join vw_territories t on et.TerritoryID = t.TerritoryID
 inner join Employees e on e.EmployeeID = et.EmployeeID
 GO
 select * from vw_employeeterritories;
+
+--ejecucion de vista products
+select * from vw_products;
+
+--consulta con el nombre del producto, nombre de la categoria y nombre del proovedor
+select Productname, CategoryName, CompanyName
+from vw_products;
+
+--funciones de agregado
+select count(productname) from vw_products;
+select sum(unitprice) from vw_orderdetails;
+select avg(unitprice) from vw_orderdetails;
+select max(unitprice) from vw_orderdetails;
+select min(unitprice) from vw_orderdetails;
+
+select productname, categoryname, companyname from vw_products
+--consulta con el nombre del proveedor y total de prod que suerte
+
+select companyname, count(*)
+from vw_products
+group by companyname -- encontrar los proveedores distintos
+
+--la categoria y el total de prod que contiene
+select categoryname,count(*)
+from vw_products
+group by categoryname --encontrar las categorias distintas	
+
+--consulta con el nombre del cliente, total de ordenes realizadas, fecha de la ultima
+select orderid, orderdate, nomcliente from vw_orders order by nomcliente;
+
+select nomcliente, count(*), max(orderdate)
+from vw_orders
+group by nomcliente;
+
+--consulta con el nombre de la categoria y total de productos que surte
+
+--mostrar solo las categorias que tengan menos de 10 productos
+select productname,categoryname,companyname from vw_products order by 3;
+
+
+--consulta con el nombre del cliente, total de ordenes realizadas e importe total de ventas
+select orderid, nomcliente, productname,quantity, unitprice from vw_orderdetails order by nomcliente;
+
+select nomcliente, ordenes = count(distinct orderid), importe = sum( quantity * unitprice)
+from vw_orderdetails group by nomcliente order by nomcliente
+
+--CONSULTA CON EL FOLIO DE LA ORDEN Y EL IMPORTE TOTAL DE LA ORDEN
+SELECT ORDERID, PRODUCTNAME, QUANTITY, UNITPRICE FROM VW_ORDERDETAILS
+
+SELECT ORDERID, IMPORTE = SUM(QUANTITY * UNITPRICE)
+FROM VW_ORDERDETAILS
+GROUP BY ORDERID;
+
+
+
+
+
+
+
+
