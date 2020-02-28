@@ -154,7 +154,31 @@ SELECT ORDERID, IMPORTE = SUM(QUANTITY * UNITPRICE)
 FROM VW_ORDERDETAILS
 GROUP BY ORDERID;
 
+create view vw_diasSemana as
+select clave =1,nombre = 'Sunday'
+union
+select 2,'Monday'
+union 
+select 3,'Tuesday'
+union
+select 4,'Wednesday'
+union
+select 5,'Thursday'
+union
+select 6,'Friday'
+union
+select 7,'Saturday'
+go
+select * from vw_diasSemana
 
+select d.nombre,count(distinct od.orderid), isnull(sum(od.quantity * od.unitprice), 0)
+from vw_orderdetails od
+right outer join vw_diasSemana d on d.clave = datepart(dw,orderdate)
+group by d.nombre
+order by d.clave;
+
+--consulta con el nombre del cliente y el importe de venta 1996, 1997, 1998
+select nomcliente, Total = sum(quantity * unitprice),
 
 
 
