@@ -419,3 +419,90 @@ exec (@sql)
 create procedure Pa_Aumento
 as
 update Products 
+
+/*
+	faltan apuntes
+*/
+
+---------------------------------------------------------------------------------------/11/03/2020/
+--3.-Sp con parametros de entrada
+--Sp que reciba 4 calificaciones imprimir el promdeio
+Create proc Pa_Calificaciones
+@cal1 int,
+@cal2 int,
+@cal3 int
+as
+Select (@cal1 + @cal2 + @cal3) / 3
+
+--4.-Sp con parametros de salida
+-- Sp que reciba 4 calificaciones y regrese el promedio y si fue aprobado
+create proc Pa_Calif
+@cal1 int,
+@cal2 int,
+@cal3 int,
+@prom numeric(12,3) output,
+@tipo char(20) output
+as
+begin
+Select @prom = (@cal1 + @cal2 + @cal3) / 3
+if(@prom > 70)
+	select @tipo = 'Aprobado'
+else
+	select @tipo = 'Reprobado'
+end
+	--Ejecución
+declare @A numeric(12,3), @B char(20)
+exec Pa_Calif 70,80,70, @A output, @B output
+Select @A, @B
+
+--5.-Por valor de retorno
+--Regresa solo valores enteros
+create proc Pa_CalifReturn
+@cal1 int,
+@cal2 int,
+@cal3 int
+as
+begin
+declare @prom int
+Select @prom = (@cal1 + @cal2 + @cal3) / 3
+return @prom
+end
+	--Ejecución
+Declare @A integer
+exec @A = Pa_CalifReturn 60,70,98
+Select @A
+
+--6.-Procedimientos con valores predefinidos
+--Recibe parametros y tinen valores predefinicidos
+create proc Pa_RecibirDefault 
+@val1 int,
+@val2 int = 20
+as
+begin 
+select @val1 + @val2
+end
+
+--EJERCICIO	
+Create procedure Pa_Ordenes
+@emp int,
+@orders varchar(200) output
+as
+begin
+	declare @clave int
+	select @clave = min(OrderID) from Orders where EmployeeID = @emp
+	while(@clave is not null)
+	begin
+		select @texto += ', ' + @clave
+		select @clave = min(OrderID) from Orders
+		where EmployeeID = @emp and OrderID > @clave
+	end
+end
+
+select EmployeeID, OrderID from Orders
+
+declare @clave int, @emp int, @texto varchar(200)
+create table #table(emp int, orders varchar(200))
+
+
+insert into #table values (@emp, @texto)
+select * from #table
