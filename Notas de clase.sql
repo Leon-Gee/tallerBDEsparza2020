@@ -506,3 +506,73 @@ create table #table(emp int, orders varchar(200))
 
 insert into #table values (@emp, @texto)
 select * from #table
+
+
+---------------------------------------------------------------------------------------/12/03/2020/
+create proc Sp_Cliente 
+@cliente varchar(5),
+@product varchar(2000) output
+as
+begin
+	declare @clave int
+	set @product = ''
+	select @clave = min(ProductID) from [Order Details] D inner join Orders O on D.OrderID = D.OrderID
+	where CustomerID = @cliente
+	while(@clave is not null)
+	begin 
+		Select @product = @product + ', ' + ProductName from Products
+		where ProductID = @clave
+		
+		select @clave = min(O.OrderID) from [Order Details] D inner join Orders O on D.OrderID = D.OrderID
+		where CustomerID = @cliente and ProductID > @clave
+	end
+end
+
+go
+
+alter proc Sp_Empleados
+@cliente varchar(5),
+@empleados varchar(2000) output
+as
+begin
+	declare @clave int
+	set @empleados = ''
+
+	select @clave = min(EmployeeID) from Orders 
+	where CustomerID = @cliente
+
+	while(@clave is not null)
+	begin 
+		Select @empleados = @empleados + ', ' + convert(varchar, EmployeeID) from Employees
+		where EmployeeID = @clave
+		
+		select @clave = min(EmployeeID) from Orders
+		where CustomerID = @cliente and EmployeeID > @clave
+	end
+end
+
+go
+
+create proc Sp_todo
+as
+begin
+	declare @cliente char(5), @products varchar(200), @empleados varchar(200)
+	create table #tabla (cliente int, productos varchar(200), empleados varchar(200))
+
+	select @cliente = min(CustomerID) from Customers
+
+	while(@cliente is not null)
+	begin 
+		exec Sp_Cliente @cliente, @products output
+		exec Sp_Empleados @cliente, @empleados output
+
+		insert into #tabla values (@cliente, @products, @empleados)
+
+		select @cliente = min(CustomerID) from Customers
+		where CustomerID > @cliente
+	end
+
+	select * from #tabla
+end
+
+exec Sp_todo
