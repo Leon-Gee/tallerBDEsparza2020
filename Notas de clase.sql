@@ -576,3 +576,119 @@ begin
 end
 
 exec Sp_todo
+
+
+---------------------------------------------------------------------------------------/17/03/2020/
+
+--SP recursivo, recibe nombre del empleado y regresa todos sus jefes y su nivel
+create proc Sp_NombreJefesNivel
+@emp int,
+@jefes varchar(200),
+@nivel int output
+as
+begin
+	declare @clavejefe int
+	if @nivel is null
+		select @nivel = 0
+	if @nivel is null
+		select @je = 0
+	select @clavejefe = ReportsTo from Employees where EmployeeID = @emp
+
+	if @clavejefe is not null
+	begin
+		select qnivel = @nivel + 1
+		select @jefes = @jefes + FirstName + ' ' + LastName from Employees
+		where EmployeeID = @clavejefe
+
+		exec Sp_NombreJefesNivel @clavejefe, @jefes output, @nivel output
+	end
+end
+
+--FUNCIONES
+/* Tipos de funciones defindas por el usuario
+tipos:
+	1.- las funciones esclalares
+	2.- tabla en linea
+	3.- funciones de tabla de multi sentencias
+*/
+
+-- 1.- Funciones Escalares
+go
+create function dbo.Cubo (@num numeric(12,2))
+returns numeric(12,2)
+as
+begin
+	return @num * @num * @num
+end
+go
+select dbo.Cubo (5)
+
+go
+-- 2.- Funciones de tabla en linea
+create function dbo.Ordenes (@parametro int)
+returns table
+as
+return (select * from Employees where EmployeeID = @parametro)
+
+go
+
+create function dbo.FuncionSelect (@emp int)
+returns table
+as
+return (select * from Orders where EmployeeID = @emp)
+
+go
+
+select * from dbo.Ordenes (1) O inner join [Order Details] OD on O.OrderID = OD.OrderID
+								inner join Employees E on E.EmployeeID = O.EmployeeID
+
+go
+
+create function dbo.OrdenesAño (@año int)
+returns table
+as
+return(
+	select C.CompanyName, count(O.OrderID) as Total
+	from Orders O right join Customers C on O.CustomerID = C.CustomerID and year(O.OrderDate) = 2000
+	Group by C.CompanyName
+)
+
+go
+Select * from dbo.OrdenesAño(2000) Order by 1
+
+select A.CompanyName, A.Total as T96, B.Total as T97, C.Total as T98
+from dbo.OrdenesAño(1996) A join dbo.OrdenesAño(1997) B on A.CompanyName = B.CompanyName
+							join dbo.OrdenesAño(1998) C on A.CompanyName = C.CompanyName
+
+go
+
+create function dbo.Fu_VentasDia (@año int)
+returns table
+as return(
+	select clave = Datepart(DW, O.OrderDate), Dia = dateName(DW, O.OrderDate)
+	from Orders O inner join [Order Details] OD on O.OrderID = OD.OrderID
+	where year(O.OrderDate) = @año
+	group by datename(dw, O.OrderDate), DATEPART(DW, O.OrderDate)
+)
+
+go
+
+create function dbo.Fu_Semana()
+returns table
+as return(
+	select clave = 1, nombre = 'sunday'
+	union
+	select 2, 'monday'
+	union
+	select 3, 'tuesday'
+	union
+	select 4, 'wednesday'
+	union
+	select 5, 'thursday'
+	union
+	select 6, 'friday'
+	union
+	select 7, 'saturday'
+)
+go
+
